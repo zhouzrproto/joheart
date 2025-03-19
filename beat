@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let hearts = [];
+
+        class Heart {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 30 + 10;
+                this.speedX = Math.random() * 3 - 1.5;
+                this.speedY = Math.random() * -3 - 1;
+                this.alpha = 1;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.size -= 0.1;
+                this.alpha -= 0.01;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.bezierCurveTo(
+                    this.x + this.size * 0.5, this.y - this.size,
+                    this.x + this.size * 1.5, this.y - this.size,
+                    this.x + this.size, this.y
+                );
+                ctx.bezierCurveTo(
+                    this.x + this.size * 1.5, this.y + this.size,
+                    this.x + this.size * 0.5, this.y + this.size,
+                    this.x, this.y
+                );
+                ctx.fillStyle = `rgba(255, 0, 0, ${this.alpha})`;
+                ctx.fill();
+            }
+        }
+
+        function createHeart(e) {
+            const x = e.clientX;
+            const y = e.clientY;
+            for (let i = 0; i < 50; i++) {
+                hearts.push(new Heart(x, y));
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hearts.forEach((heart, index) => {
+                heart.update();
+                heart.draw();
+                if (heart.alpha <= 0) {
+                    hearts.splice(index, 1);
+                }
+            });
+        }
+
+        canvas.addEventListener('click', createHeart);
+        animate();
+    </script>
+</body>
+</html>
